@@ -10,6 +10,18 @@ We have fully redesigned the portfolio website under `C:/Users/ayush/.gemini/ant
 
 ---
 
+## Git & GitHub Integration
+
+### 1. Repository Initialized & Synchronized
+- **GitHub Repository**: [https://github.com/XORNOTFOUND02/XORNOTFOUND02](https://github.com/XORNOTFOUND02/XORNOTFOUND02)
+- **Status**: Git initialized in the local workspace directory (`gaming-portfolio`). Set commit credentials for local operations to map with the target repository.
+- **Initial Push**: Pulled initial files from GitHub and pushed the entire workspace commits (including all custom assets, script loops, and styled sheets) to the remote repository.
+
+### 2. Workspace Agent Rules (`.agents/AGENTS.md`)
+- Placed a workspace-scoped rules configuration file under `.agents/AGENTS.md` instructing any future AI coding agents working in this directory to stage, commit, and push any workspace edits to your GitHub remote repository automatically.
+
+---
+
 ## Beast-Mode UX Additions
 
 ### 1. Dynamic Text Scramble Matrix Glitch
