@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Ayush Shukla (XORNOTFOUND) - Senior Software Engineer & Tech Founder of RIVOXA. Specialized in AI/ML, Fullstack Web Development, and Mobile apps.">
+    <title>Ayush Shukla | Senior Software Engineer | XORNOTFOUND</title>
+    <!-- Google Fonts: Space Grotesk (Modern Tech), Fira Code (Coding), Inter (Body) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-theme">
+
+    <!-- Neon HUD Cursor Follower -->
+    <div id="cursorFollower" class="custom-cursor"></div>
+
+    <!-- Matrix Code Rain Overlay (Secret Easter Egg) -->
+    <div id="matrixOverlay" class="matrix-overlay-panel d-none">
+        <canvas id="matrixCanvas"></canvas>
+        <div class="matrix-console font-code">
+            <p class="text-neon-cyan">[SYSTEM LOG] BOOTING SECURE TERMINAL...</p>
+            <p class="text-white">&gt; sudo decrypt XORNOTFOUND_MEMORIES</p>
+            <p class="text-success">ACCESS GRANTED. PARSING FILE SYSTEM...</p>
+            <p class="text-muted">AYUSH SHUKLA: +3 YEARS EXPERIENCE</p>
+            <p class="text-muted">FOUNDER OF RIVOXA DIGITAL AGENCY</p>
+            <p class="text-muted">MASTERED: PYTHON, JAVA, C, C++, WEB DEV, JS</p>
+            <p class="text-muted">AI/ML EXPERT (SCIKIT-LEARN MODEL PIPELINES)</p>
+            <p class="text-neon-magenta">[SECRET CODE RESOLVED: HACKER UNLOCKED]</p>
+            <p class="text-yellow animate-flicker mt-4" style="font-size: 11px;">CLICK ANYWHERE TO RETURN TO PORTFOLIO NET</p>
+        </div>
+    </div>
+
+    <!-- Interactive Background Particles Canvas -->
+    <canvas id="bgParticlesCanvas" style="position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:-2; pointer-events:none;"></canvas>
+
+    <!-- Glowing Background Decorative Orbs -->
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <div class="glow-orb orb-3"></div>
+
+    <!-- STICKY NAVBAR -->
+    <nav class="navbar navbar-expand-lg sticky-top navbar-custom">
+        <div class="container">
+            <a class="navbar-brand font-tech text-rgb" href="#" title="Click to decrypt secret system link">
+                <span class="text-neon-cyan">&lt;</span>XORNOTFOUND<span class="text-neon-cyan"> /&gt;</span>
+            </a>
+            <button class="navbar-toggler border-0 text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto font-tech align-items-center">
+                    <li class="nav-item"><a class="nav-link px-3" href="#about">About</a></li>
+                    <li class="nav-item"><a class="nav-link px-3" href="#rivoxa">Rivoxa</a></li>
+                    <li class="nav-item"><a class="nav-link px-3" href="#skills">Skills</a></li>
+                    <li class="nav-item"><a class="nav-link px-3" href="#achievements">Achievements</a></li>
+                    <li class="nav-item"><a class="nav-link px-3" href="#arcade">Arcade</a></li>
+                    <li class="nav-item"><a class="nav-link px-3" href="#contact">Contact</a></li>
+                    
+                    <!-- Ambient Cyber Soundtrack Toggle with Equalizer -->
+                    <li class="nav-item ms-lg-2 mt-2 mt-lg-0 d-flex align-items-center gap-1">
+                        <button id="bgMusicBtn" class="btn btn-cyber-outline py-1 px-2 font-code" style="font-size: 10px;" title="Toggle Ambient Cyber Soundtrack">
+                            <i class="fas fa-play me-1" id="musicIcon"></i>BEATS
+                        </button>
+                        <div id="audioVisualizer" class="audio-visualizer-bars d-none">
+                            <span class="vis-bar bar1"></span>
+                            <span class="vis-bar bar2"></span>
+                            <span class="vis-bar bar3"></span>
+                        </div>
+                    </li>
+
+                    <!-- RGB Accent Swapper Widget -->
+                    <li class="nav-item ms-lg-3 me-lg-2 mt-2 mt-lg-0 d-flex gap-2 align-items-center">
+                        <span class="text-muted font-code" style="font-size: 10px;">ACCENT:</span>
+                        <div class="accent-dot accent-cyan active" data-color="cyan" title="Neon Cyan"></div>
+                        <div class="accent-dot accent-magenta" data-color="magenta" title="Cyber Magenta"></div>
+                        <div class="accent-dot accent-green" data-color="green" title="Matrix Green"></div>
+                        <div class="accent-dot accent-yellow" data-color="yellow" title="Amber Yellow"></div>
+                    </li>
+
+                    <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
+                        <span class="badge badge-status-rgb">
+                            <span class="pulse-dot"></span> Building RIVOXA
+                        </span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section id="about" class="hero-section container py-5 my-md-4">
+        <div class="row align-items-center">
+            <!-- Left: Avatar Frame with spinning RGB Border -->
+            <div class="col-lg-5 text-center mb-5 mb-lg-0 d-flex justify-content-center">
+                <div class="rgb-avatar-wrapper">
+                    <div class="rgb-avatar-border"></div>
+                    <div class="rgb-avatar-inner">
+                        <img src="avatar.png" alt="Ayush Shukla (XORNOTFOUND) Profile Picture" class="img-fluid profile-img">
+                    </div>
+                </div>
+            </div>
+            <!-- Right: Intro Content -->
+            <div class="col-lg-7 text-lg-start text-center">
+                <h1 class="display-3 fw-bold font-tech text-white mb-2 tracking-tight">
+                    AYUSH SHUKLA
+                </h1>
+                <h2 class="h4 font-code text-neon-cyan mb-4 tracking-wider" style="min-height: 30px;">
+                    AKA (XORNOTFOUND)
+                </h2>
+                <p class="lead font-tech text-muted mb-4">
+                    Experienced Fullstack Engineer and Tech Founder with <span class="text-white fw-bold">+3 years of active development experience</span>. Specialize in designing intelligent systems and responsive user interfaces. Currently building <span class="text-rgb fw-bold">RIVOXA</span> and crafting machine learning architectures.
+                </p>
+                <div class="d-flex flex-wrap justify-content-center justify-content-lg-start gap-3">
+                    <a href="#contact" class="btn btn-rgb-action font-tech py-3 px-4">
+                        <i class="fas fa-paper-plane me-2"></i> GET IN TOUCH
+                    </a>
+                    <a href="#arcade" class="btn btn-cyber-outline font-tech py-3 px-4">
+                        <i class="fas fa-gamepad me-2"></i> PLAY MINI-GAME
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- COMPANY SECTION (RIVOXA) -->
+    <section id="rivoxa" class="py-5 container nav-target scroll-reveal">
+        <div class="rgb-card-border">
+            <div class="rgb-card-inner p-4 p-md-5">
+                <div class="row align-items-center">
+                    <div class="col-lg-4 text-center mb-4 mb-lg-0">
+                        <div class="company-logo-wrapper mx-auto">
+                            <img src="rivoxa.jpg" alt="RIVOXA Logo" class="img-fluid company-img rounded">
+                        </div>
+                    </div>
+                    <div class="col-lg-8">
+                        <div class="d-flex align-items-center justify-content-center justify-content-lg-start mb-3 gap-2 flex-wrap">
+                            <span class="badge bg-neon-purple font-tech">CURRENT QUEST</span>
+                            <span class="badge bg-dark font-code text-success">FOUNDER & CEO</span>
+                        </div>
+                        <h2 class="display-5 fw-bold font-tech text-white mb-3">RIVOXA</h2>
+                        <p class="font-tech text-muted mb-4">
+                            Rivoxa is a leading **Automation Digital Marketing Agency** specializing in streamlining growth marketing campaigns, automating customer acquisition pipelines, and integrating data-driven marketing software architectures.
+                        </p>
+                        <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start align-items-center">
+                            <div class="tech-stack-pills d-flex flex-wrap gap-2">
+                                <span class="tech-pill font-code"><i class="fab fa-react text-info me-1"></i>React</span>
+                                <span class="tech-pill font-code"><i class="fab fa-node-js text-success me-1"></i>Node.js</span>
+                                <span class="tech-pill font-code"><i class="fas fa-cubes text-white me-1"></i>Next.js</span>
+                                <span class="tech-pill font-code"><i class="fas fa-server text-neon-cyan me-1"></i>MongoDB</span>
+                            </div>
+                            <a href="mailto:rivoxapvt@gmail.com?subject=Job%20Application%20-%20RIVOXA" class="btn btn-rgb-action font-tech py-2 px-4" style="font-size: 11px;">
+                                <i class="fas fa-briefcase me-2"></i> GET HIRED
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SKILLS MATRIX -->
+    <section id="skills" class="py-5 container nav-target scroll-reveal">
+        <h2 class="display-6 fw-bold font-tech text-center text-white mb-3">
+            <span class="text-neon-cyan">&lt;</span> SKILLS_MATRIX <span class="text-neon-cyan">/&gt;</span>
+        </h2>
+        <p class="text-center font-code text-muted mb-5" style="font-size: 12px;">Click on any skill element to search its technical documentation</p>
+        
+        <div class="row g-4">
+            <!-- 1. Languages Mastered -->
+            <div class="col-lg-6">
+                <div class="cyber-card p-4 h-100">
+                    <h3 class="h4 font-tech text-white border-bottom-cyber pb-2 mb-4">
+                        <i class="fas fa-brain text-neon-magenta me-2"></i>LANGUAGES MASTERED
+                    </h3>
+                    <div class="d-flex flex-wrap gap-3">
+                        <div class="skill-item clickable-skill" data-search="Python Programming Language">
+                            <span class="skill-name font-code"><i class="fab fa-python text-warning me-2"></i>Python</span>
+                        </div>
+                        <div class="skill-item clickable-skill" data-search="Java Programming Language">
+                            <span class="skill-name font-code"><i class="fab fa-java text-danger me-2"></i>Java</span>
+                        </div>
+                        <div class="skill-item clickable-skill" data-search="C Programming Language">
+                            <span class="skill-name font-code"><i class="fas fa-hashtag text-info me-2"></i>C</span>
+                        </div>
+                        <div class="skill-item clickable-skill" data-search="C++ Programming Language">
+                            <span class="skill-name font-code"><i class="fas fa-circle-nodes text-neon-cyan me-2"></i>C++</span>
+                        </div>
+                        <div class="skill-item clickable-skill" data-search="JavaScript">
+                            <span class="skill-name font-code"><i class="fab fa-js text-warning me-2"></i>JavaScript</span>
+                        </div>
+                        <div class="skill-item clickable-skill" data-search="Web Development">
+                            <span class="skill-name font-code"><i class="fas fa-code text-success me-2"></i>Web Development</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. AI/ML Focus -->
+            <div class="col-lg-6">
+                <div class="cyber-card p-4 h-100 border-ai-gradient">
+                    <h3 class="h4 font-tech text-white border-bottom-cyber pb-2 mb-4">
+                        <i class="fas fa-robot text-rgb me-2"></i>CURRENT FOCUS: AI/ML
+                    </h3>
+                    <p class="font-tech text-muted mb-4">
+                        Actively implementing and tuning machine learning models with a focus on data classification, regression algorithms, and pipelines.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3">
+                        <div class="skill-item border-rgb clickable-skill" data-search="Scikit-Learn Machine Learning">
+                            <span class="skill-name font-code text-white"><i class="fas fa-network-wired text-neon-cyan me-2"></i>Scikit-Learn</span>
+                        </div>
+                        <div class="skill-item clickable-skill" data-search="Machine Learning Predictive Models">
+                            <span class="skill-name font-code"><i class="fas fa-gears text-muted me-2"></i>Predictive Models</span>
+                        </div>
+                        <div class="skill-item clickable-skill" data-search="Machine Learning Data Pipelines">
+                            <span class="skill-name font-code"><i class="fas fa-chart-line text-muted me-2"></i>Data Pipelines</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Frontend Architecture -->
+            <div class="col-lg-6">
+                <div class="cyber-card p-4 h-100">
+                    <h3 class="h4 font-tech text-white border-bottom-cyber pb-2 mb-4">
+                        <i class="fas fa-window-restore text-neon-cyan me-2"></i>FRONTEND ARCHITECTURE
+                    </h3>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="stack-box p-3 text-center clickable-skill" data-search="React.js Library">
+                                <i class="fab fa-react text-info fs-3 mb-2"></i>
+                                <div class="font-code text-white small">React</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stack-box p-3 text-center clickable-skill" data-search="Next.js Framework">
+                                <i class="fas fa-cubes text-white fs-3 mb-2"></i>
+                                <div class="font-code text-white small">Next.js</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stack-box p-3 text-center clickable-skill" data-search="Flutter Mobile Development">
+                                <i class="fas fa-mobile-screen-button text-neon-magenta fs-3 mb-2"></i>
+                                <div class="font-code text-white small">Flutter</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Backend & Databases -->
+            <div class="col-lg-6">
+                <div class="cyber-card p-4 h-100">
+                    <h3 class="h4 font-tech text-white border-bottom-cyber pb-2 mb-4">
+                        <i class="fas fa-server text-success me-2"></i>BACKEND & DATABASE INFRA
+                    </h3>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="stack-box p-3 text-center clickable-skill" data-search="Node.js and Express Framework">
+                                <i class="fab fa-node-js text-success fs-3 mb-2"></i>
+                                <div class="font-code text-white small">Node.js / Express</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="stack-box p-3 text-center clickable-skill" data-search="MongoDB NoSQL Database">
+                                <i class="fas fa-database text-warning fs-3 mb-2"></i>
+                                <div class="font-code text-white small">MongoDB</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Soft Skills Corner -->
+            <div class="col-12 mt-4">
+                <div class="cyber-card p-4">
+                    <h3 class="h4 font-tech text-white border-bottom-cyber pb-2 mb-4">
+                        <i class="fas fa-user-gear text-neon-cyan me-2"></i>SOFT SKILLS CORNER
+                    </h3>
+                    <div class="row g-3">
+                        <div class="col-md-3 col-sm-6">
+                            <div class="stack-box p-3 text-center">
+                                <i class="fas fa-comments text-neon-cyan fs-4 mb-2 d-block"></i>
+                                <span class="font-code text-white small">Communication Skills</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <div class="stack-box p-3 text-center">
+                                <i class="fas fa-display text-neon-magenta fs-4 mb-2 d-block"></i>
+                                <span class="font-code text-white small">Presentation Skills</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <div class="stack-box p-3 text-center">
+                                <i class="fas fa-heart-pulse text-success fs-4 mb-2 d-block"></i>
+                                <span class="font-code text-white small">Calmness Under Pressure</span>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <div class="stack-box p-3 text-center">
+                                <i class="fas fa-users-gear text-warning fs-4 mb-2 d-block"></i>
+                                <span class="font-code text-white small">Well Known Human Psychology</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- HACKATHONS & ACHIEVEMENTS SECTION -->
+    <section id="achievements" class="py-5 container nav-target scroll-reveal">
+        <h2 class="display-6 fw-bold font-tech text-center text-white mb-5">
+            <span class="text-neon-cyan">&lt;</span> HACKATHONS_&amp;_ACHIEVEMENTS <span class="text-neon-cyan">/&gt;</span>
+        </h2>
+        <div class="row g-4">
+            <!-- Achievement 1 -->
+            <div class="col-md-6 col-lg-4">
+                <div class="cyber-card p-4 h-100 border-rgb">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="achievement-badge-box me-3">
+                            <i class="fas fa-trophy text-warning fs-2"></i>
+                        </div>
+                        <div>
+                            <h3 class="h5 font-tech text-white mb-1">Tech-A-Thon 3.0</h3>
+                            <span class="badge bg-neon-purple font-code">WINNER</span>
+                        </div>
+                    </div>
+                    <p class="font-tech text-muted mb-0" style="font-size: 13px;">
+                        Secured 1st place acting as the lead Backend Developer in the team. Managed API routing, database schema modeling, and high-throughput server transactions.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Achievement 2 -->
+            <div class="col-md-6 col-lg-4">
+                <div class="cyber-card p-4 h-100 border-rgb">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="achievement-badge-box me-3">
+                            <i class="fas fa-crown text-neon-magenta fs-2"></i>
+                        </div>
+                        <div>
+                            <h3 class="h5 font-tech text-white mb-1">VoltHacks</h3>
+                            <span class="badge bg-neon-purple font-code">SOLO WINNER</span>
+                        </div>
+                    </div>
+                    <p class="font-tech text-muted mb-0" style="font-size: 13px;">
+                        Emerged as the champion running solo against multi-person teams. Designed, compiled, and presented the entire application framework individually within 36 hours.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Achievement 3 -->
+            <div class="col-md-12 col-lg-4">
+                <div class="cyber-card p-4 h-100 border-ai-gradient d-flex flex-column justify-content-center">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="achievement-badge-box me-3">
+                            <i class="fas fa-award text-rgb fs-2"></i>
+                        </div>
+                        <div>
+                            <h3 class="h5 font-tech text-rgb mb-1">Hackathon Champion</h3>
+                            <span class="badge bg-dark font-code text-success">15+ MORE WINS</span>
+                        </div>
+                    </div>
+                    <p class="font-tech text-muted mb-0" style="font-size: 13px;">
+                        Accrued over fifteen additional high-standing finishes across various regional and global hackathons, specializing in rapid-prototyping fullstack AI solutions.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- INTERACTIVE MINI-GAME (FLAPPY BUG) -->
+    <section id="arcade" class="py-5 container nav-target scroll-reveal">
+        <h2 class="display-6 fw-bold font-tech text-center text-white mb-5">
+            <span class="text-neon-cyan">&lt;</span> RETRO_ARCADE_GAME <span class="text-neon-cyan">/&gt;</span>
+        </h2>
+
+        <div class="arcade-wrapper border-cyber p-4 text-center position-relative">
+            <div class="arcade-hud d-flex justify-content-between align-items-center mb-3 px-md-4 flex-wrap gap-2">
+                <div class="font-code text-neon-cyan">SCORE: <span id="gameScore" class="fw-bold">0</span></div>
+                
+                <!-- Difficulty Selector HUD -->
+                <div class="d-flex gap-2">
+                    <button class="btn btn-cyber-outline py-0 px-2 active-diff font-code" style="font-size: 9px;" data-diff="easy" id="diffEasy">EASY</button>
+                    <button class="btn btn-cyber-outline py-0 px-2 font-code" style="font-size: 9px;" data-diff="medium" id="diffMedium">MEDIUM</button>
+                    <button class="btn btn-cyber-outline py-0 px-2 font-code" style="font-size: 9px;" data-diff="hard" id="diffHard">HARD</button>
+                </div>
+
+                <div class="font-code text-neon-magenta">HIGH: <span id="gameHighScore" class="fw-bold">0</span></div>
+            </div>
+
+            <div class="game-container-relative mx-auto" style="position: relative; max-width: 480px;">
+                <canvas id="flappyCanvas" width="480" height="320" class="border-cyber bg-terminal-box"></canvas>
+                
+                <!-- Start / Game Over overlay screen -->
+                <div id="gameOverlay" class="game-overlay-panel d-flex flex-column justify-content-center align-items-center">
+                    <h3 id="overlayTitle" class="font-tech text-white mb-2">FLAPPY BUG</h3>
+                    <p id="overlaySubtitle" class="font-code text-muted mb-4" style="font-size: 12px; max-width: 320px;">
+                        A compiler bug 🐛 is loose in the server. Guide the cyan visor through the red error blocks!
+                    </p>
+                    <button id="startGameBtn" class="btn btn-rgb-action font-tech px-4 py-3">START GAME</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTACT SECTION -->
+    <section id="contact" class="py-5 container nav-target scroll-reveal">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="cyber-card p-5 text-center">
+                    <h2 class="display-6 fw-bold font-tech text-white mb-4">
+                        CONNECT_WITH_ME
+                    </h2>
+                    <p class="font-tech text-muted mb-5">
+                        For inquiries, collaborations, startup details, or technical requests, reach out via the communication layers below.
+                    </p>
+                    
+                    <div class="row g-4 justify-content-center">
+                        <!-- Gmail channel -->
+                        <div class="col-md-6">
+                            <a href="mailto:rivoxapvt@gmail.com" class="contact-link-box p-4 d-block text-decoration-none">
+                                <i class="fas fa-envelope text-neon-magenta fs-2 mb-3"></i>
+                                <h4 class="font-tech text-white mb-1" style="font-size: 14px;">GMAIL ID</h4>
+                                <p class="font-code text-muted mb-0" style="font-size: 12px;">rivoxapvt@gmail.com</p>
+                            </a>
+                        </div>
+                        <!-- Instagram channel -->
+                        <div class="col-md-6">
+                            <a href="https://instagram.com/__ayushzz_" target="_blank" rel="noopener noreferrer" class="contact-link-box p-4 d-block text-decoration-none">
+                                <i class="fab fa-instagram text-neon-cyan fs-2 mb-3"></i>
+                                <h4 class="font-tech text-white mb-1" style="font-size: 14px;">INSTAGRAM</h4>
+                                <p class="font-code text-muted mb-0" style="font-size: 12px;">@__ayushzz_</p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- IMPORTANT WARNING: GITHUB STATUS CARD -->
+    <section class="container pb-5">
+        <div class="github-alert-card border-warning-rgb p-4 text-center">
+            <div class="d-flex align-items-center justify-content-center gap-3 mb-2 flex-wrap">
+                <i class="fab fa-github text-warning fs-3"></i>
+                <h3 class="h5 font-tech text-warning mb-0 text-uppercase tracking-wider">
+                    System Alert: GitHub Status
+                </h3>
+            </div>
+            <p class="font-tech text-muted mb-0 mx-auto" style="max-width: 750px; font-size: 13px;">
+                Github profile was suspended so currently working on recovering all the projects and uploading in a new Github profile soon it will be launched.
+            </p>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="text-center py-4 border-top-cyber">
+        <div class="container">
+            <p class="font-tech text-muted mb-0" style="font-size: 11px;">
+                © 2026 Ayush Shukla. Crafted with dark mode aesthetics & RGB animations.<br>
+                AKA <span class="text-neon-cyan">XORNOTFOUND</span> // Founder of <span class="text-neon-magenta">RIVOXA</span>.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Floating Developer CLI Terminal Button & Slide out drawer -->
+    <button id="terminalToggleBtn" class="btn btn-hud-terminal" title="Open Developer CLI">
+        <i class="fas fa-terminal"></i>
+    </button>
+    <div id="terminalDrawer" class="terminal-drawer d-none">
+        <div class="terminal-drawer-header d-flex justify-content-between align-items-center p-3 border-bottom-cyber">
+            <span class="font-code text-neon-cyan"><i class="fas fa-terminal me-2"></i>DEVELOPER_CLI</span>
+            <button id="closeTerminalBtn" class="btn-close-terminal"><i class="fas fa-xmark"></i></button>
+        </div>
+        <div class="terminal-drawer-body p-3 font-code text-success">
+            <div id="drawerTerminalLog" class="terminal-drawer-log">
+                Welcome to Ayush's Professional CLI v1.0.0.<br>
+                Type <span class="text-yellow">help</span> to view available terminal scripts.<br><br>
+                Guest@XORNOTFOUND:~# 
+            </div>
+            <form id="drawerTerminalForm" class="d-flex align-items-center mt-2">
+                <span class="text-neon-cyan me-2 fw-bold" style="white-space:nowrap;">Guest@XORNOTFOUND:~#</span>
+                <input type="text" id="drawerTerminalInput" class="terminal-drawer-input flex-grow-1 bg-transparent border-0 text-success outline-none" autocomplete="off" placeholder="type a command...">
+            </form>
+        </div>
+    </div>
+
+    <!-- Floating Scroll To Top Button -->
+    <button id="scrollToTopBtn" class="btn btn-hud-scroll d-none" title="Scroll to top">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Core Application Logic -->
+    <script src="app.js"></script>
+</body>
+</html>
