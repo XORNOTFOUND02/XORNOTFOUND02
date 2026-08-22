@@ -43,14 +43,22 @@ We have fully redesigned the portfolio website under `C:/Users/ayush/.gemini/ant
 - **Console Log overlay**: Fades in a floating hacker console displaying decrypted developer database credentials, years of experience, startup details, and skills lists.
 - **Control**: Click anywhere inside the overlay to exit and return to the main net.
 
-### 3. Floating Developer CLI Terminal Drawer
+### 3. Floating Developer CLI Terminal Drawer (Responsive Update)
 - **Concept**: Added a slide-out command line interface drawer at the bottom-left corner of the viewport (accessed via the floating `[>_]` button).
-- **Commands**: Intercepts input values and prints results dynamically in the console log:
+- **Responsive Layout**: Upgraded drawer css with media rules (`max-width: calc(100vw - 40px)`) to automatically adjust widths on mobile and tablet displays, eliminating horizontal cuts.
+- **Advanced CLI Cockpit Commands**:
   - `help`: lists all available terminal commands.
   - `about`: details your name, handle, and professional history.
   - `skills`: prints out your entire tech stack catalog.
   - `rivoxa`: searches for details on the Rivoxa digital marketing agency.
   - `contact`: lists your email and instagram handle.
+  - `system`: prints simulated diagnostic network logs (telemetry CPU temp, threads uptime).
+  - `credits`: displays Byte/Credits balance.
+  - `theme [cyan/magenta/green/yellow]`: swaps accent theme colors.
+  - `beats [play/stop]`: controls ambient audio playback.
+  - `game [start/stop]`: launches space shooter from console.
+  - `diff [easy/medium/hard]`: adjusts shooter speed.
+  - `buy [double/shield/bomb]`: purchases upgrade shop items from command line.
   - `matrix` / `hack`: decrypts system archives and boots up the Matrix Rain takeover screen.
   - `glitch`: scrambles all layout headers on the page.
   - `clear`: clears out the logs buffer.
