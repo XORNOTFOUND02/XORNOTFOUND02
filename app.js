@@ -59,6 +59,14 @@ function playCrashSound() {
     playSynthSound([220, 110, 55], [0.1, 0.1, 0.25], 'sawtooth', 0.12);
 }
 
+function playShieldAbsorbSound() {
+    playSynthSound([400, 200], [0.12, 0.12], 'sawtooth', 0.08);
+}
+
+function playBombExplosionSound() {
+    playSynthSound([300, 150, 80], [0.1, 0.1, 0.3], 'sawtooth', 0.18);
+}
+
 
 // --- 2. AMBIENT CYBER SOUNDTRACK LOOP (SEQUENCER) ---
 let musicInterval = null;
@@ -198,6 +206,7 @@ const diffSettings = {
     medium: { enemySpeed: 1.6, spawnRate: 55, bulletSpeed: 5 },
     hard: { enemySpeed: 2.3, spawnRate: 35, bulletSpeed: 6 }
 };
+const PIPE_WIDTH = 44;
 
 let currentDiff = 'easy';
 let currentSkin = 'visor'; // Default visor jet
@@ -213,6 +222,15 @@ let highScore = 0;
 let bullets = [];
 let enemies = [];
 let gameFrame = 0;
+let bombFlashActive = 0; // Flash effect ticker
+
+// Upgrade Shop Items state
+let credits = 0;
+let upgrades = {
+    double: false,
+    shield: 0,
+    bombs: 0
+};
 
 function loadHighScore() {
     try {
@@ -238,12 +256,64 @@ function saveHighScore() {
     }
 }
 
+// Load and save upgrades shop parameters
+function loadUpgrades() {
+    try {
+        const storedCredits = localStorage.getItem('xor_shop_credits');
+        if (storedCredits) {
+            credits = parseInt(storedCredits);
+            document.getElementById('shopCredits').innerText = credits;
+        }
+        const storedUpgrades = localStorage.getItem('xor_shop_upgrades');
+        if (storedUpgrades) {
+            upgrades = JSON.parse(storedUpgrades);
+        }
+        updateShopButtonsUI();
+    } catch (e) {
+        console.warn("Error loading upgrades shop configurations:", e);
+    }
+}
+
+function saveUpgrades() {
+    try {
+        localStorage.setItem('xor_shop_credits', credits);
+        localStorage.setItem('xor_shop_upgrades', JSON.stringify(upgrades));
+        document.getElementById('shopCredits').innerText = credits;
+        updateShopButtonsUI();
+    } catch (e) {
+        console.warn("Error saving upgrades shop configurations:", e);
+    }
+}
+
+function updateShopButtonsUI() {
+    const dblBtn = document.getElementById('buyDoubleBtn');
+    const shldBtn = document.getElementById('buyShieldBtn');
+    const bombBtn = document.getElementById('buyBombBtn');
+    
+    if (dblBtn) {
+        if (upgrades.double) {
+            dblBtn.innerText = "ACTIVE";
+            dblBtn.classList.add('active-diff');
+        } else {
+            dblBtn.innerText = "10 BYTES";
+            dblBtn.classList.remove('active-diff');
+        }
+    }
+    if (shldBtn) {
+        shldBtn.innerText = upgrades.shield > 0 ? `SHIELD [x${upgrades.shield}] (+15B)` : "15 BYTES";
+    }
+    if (bombBtn) {
+        bombBtn.innerText = upgrades.bombs > 0 ? `BOMBS [x${upgrades.bombs}] (+25B)` : "25 BYTES";
+    }
+}
+
 function initGame() {
-    canvas = document.getElementById('flappyCanvas'); // keep canvas ID to prevent layout breakage
+    canvas = document.getElementById('flappyCanvas'); 
     if (!canvas) return;
     
     ctx = canvas.getContext('2d');
     loadHighScore();
+    loadUpgrades();
     
     const startBtn = document.getElementById('startGameBtn');
     
@@ -272,7 +342,7 @@ function initGame() {
         playerX = Math.max(playerWidth, Math.min(canvas.width - playerWidth, relativeX));
     }, { passive: false });
 
-    // Keyboard Arrow Keys
+    // Keyboard Arrow Keys & EMP Bomb Trigger
     document.addEventListener('keydown', (e) => {
         const arcadeTab = document.getElementById('arcadeTabContent');
         if (arcadeTab && arcadeTab.classList.contains('d-none')) return;
@@ -281,6 +351,11 @@ function initGame() {
             playerX = Math.max(playerWidth, playerX - 16);
         } else if (e.code === 'ArrowRight') {
             playerX = Math.min(canvas.width - playerWidth, playerX + 16);
+        } else if (e.code === 'KeyB') {
+            // Trigger EMP bomb shockwave
+            if (gameActive && upgrades.bombs > 0) {
+                triggerEMPBomb();
+            }
         }
     });
 
@@ -347,6 +422,7 @@ function startGame() {
     bullets = [];
     enemies = [];
     gameFrame = 0;
+    bombFlashActive = 0;
     gameActive = true;
     
     document.getElementById('gameScore').innerText = '0';
@@ -356,6 +432,23 @@ function startGame() {
     
     if (gameInterval) clearInterval(gameInterval);
     gameInterval = setInterval(updateGameLoop, 1000 / 60);
+}
+
+function triggerEMPBomb() {
+    upgrades.bombs--;
+    saveUpgrades();
+    
+    playBombExplosionSound();
+    bombFlashActive = 12; // trigger screen flash frames
+    
+    // Wipe all screen enemies and grant credits
+    const enemiesClearedCount = enemies.length;
+    score += enemiesClearedCount;
+    credits += enemiesClearedCount;
+    document.getElementById('gameScore').innerText = score;
+    enemies = [];
+    
+    saveUpgrades();
 }
 
 function triggerGameOver() {
@@ -381,9 +474,16 @@ function updateGameLoop() {
     gameFrame++;
     const settings = diffSettings[currentDiff];
     
+    if (bombFlashActive > 0) bombFlashActive--;
+
     // Automatic shoot every 14 frames
     if (gameFrame % 14 === 0) {
-        bullets.push({ x: playerX, y: playerY - 10 });
+        if (upgrades.double) {
+            bullets.push({ x: playerX - 6, y: playerY - 10 });
+            bullets.push({ x: playerX + 6, y: playerY - 10 });
+        } else {
+            bullets.push({ x: playerX, y: playerY - 10 });
+        }
         playSynthSound([600, 900], [0.03, 0.03], 'sine', 0.02); // Laser sound
     }
     
@@ -414,8 +514,16 @@ function updateGameLoop() {
         
         // Check collision with player
         if (checkPlayerCollision(enemies[i])) {
-            triggerGameOver();
-            return;
+            if (upgrades.shield > 0) {
+                upgrades.shield--;
+                saveUpgrades();
+                enemies.splice(i, 1);
+                playShieldAbsorbSound();
+                continue;
+            } else {
+                triggerGameOver();
+                return;
+            }
         }
         
         // Leak in system (enemy reaches bottom)
@@ -430,8 +538,10 @@ function updateGameLoop() {
                 bullets.splice(j, 1);
                 enemies.splice(i, 1);
                 score++;
+                credits++; // award credits currency
                 document.getElementById('gameScore').innerText = score;
-                playSynthSound([500, 300], [0.06, 0.06], 'sawtooth', 0.04); // Explode sound
+                saveUpgrades();
+                playSynthSound([500, 300], [0.06, 0.06], 'sawtooth', 0.04);
                 break;
             }
         }
@@ -463,6 +573,15 @@ function drawPlayerJet(x, y) {
     ctx.shadowBlur = 10;
     ctx.shadowColor = accentColor;
     
+    // Draw force shield outline if active
+    if (upgrades.shield > 0) {
+        ctx.strokeStyle = accentColor;
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.arc(x, y, visorRadius + 7, 0, Math.PI * 2);
+        ctx.stroke();
+    }
+
     if (currentSkin === 'visor') {
         // Cyan space fighter jet
         ctx.fillStyle = accentColor;
@@ -564,6 +683,23 @@ function renderCanvas() {
     ctx.shadowBlur = 0;
     
     drawPlayerJet(playerX, playerY);
+
+    // Draw inventory indicators on canvas overlay
+    ctx.fillStyle = accentColor;
+    ctx.font = "9px monospace";
+    ctx.textAlign = "left";
+    if (upgrades.shield > 0) {
+        ctx.fillText(`SHLD: ${upgrades.shield}`, 12, 24);
+    }
+    if (upgrades.bombs > 0) {
+        ctx.fillText(`BOMB: ${upgrades.bombs} [B]`, 12, 36);
+    }
+
+    // Shockwave Screen Flash overlay rendering
+    if (bombFlashActive > 0) {
+        ctx.fillStyle = `rgba(255, 255, 255, ${bombFlashActive / 12})`;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
 }
 
 
@@ -968,9 +1104,11 @@ function processTerminalDrawerCommand(cmd) {
             
         case 'cheat':
             highScore = 999;
+            credits = 9999; // grant bytes credits
             document.getElementById('gameHighScore').innerText = highScore;
             localStorage.setItem('xor_shooter_high', 999);
-            appendTerminalDrawerLog(`<span class="text-success">[CHEAT ACTIVATED] Space Shooter High Score set to 999!</span>`);
+            saveUpgrades();
+            appendTerminalDrawerLog(`<span class="text-success">[CHEAT ACTIVATED] Space Shooter stats & credits maxed!</span>`);
             break;
             
         case 'glitch':
@@ -1066,7 +1204,7 @@ function initTerminalDrawer() {
 }
 
 
-// --- 14. ARCADE INTERACTIVE TABS & HACKER COMPILER SIMULATOR ---
+// --- 14. ARCADE INTERACTIVE TABS & HACKER COMPILER SIMULATOR & UPGRADES SHOP ---
 const pythonHackerCode = `import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -1130,27 +1268,52 @@ let isCompilerComplete = false;
 function initArcadeTabs() {
     const tabArcade = document.getElementById('tabArcadeBtn');
     const tabCompiler = document.getElementById('tabCompilerBtn');
+    const tabShop = document.getElementById('tabShopBtn');
+    
     const contentArcade = document.getElementById('arcadeTabContent');
     const contentCompiler = document.getElementById('compilerTabContent');
+    const contentShop = document.getElementById('shopTabContent');
     
-    if (!tabArcade || !tabCompiler || !contentArcade || !contentCompiler) return;
+    if (!tabArcade || !tabCompiler || !tabShop || !contentArcade || !contentCompiler || !contentShop) return;
     
+    // Tab switching controls
     tabArcade.addEventListener('click', () => {
         playSynthSound([500], [0.08], 'sine', 0.05);
         tabArcade.classList.add('active-tab');
         tabCompiler.classList.remove('active-tab');
+        tabShop.classList.remove('active-tab');
+        
         contentArcade.classList.remove('d-none');
         contentCompiler.classList.add('d-none');
+        contentShop.classList.add('d-none');
     });
     
     tabCompiler.addEventListener('click', () => {
         playSynthSound([600], [0.08], 'sine', 0.05);
         tabCompiler.classList.add('active-tab');
         tabArcade.classList.remove('active-tab');
+        tabShop.classList.remove('active-tab');
+        
         contentCompiler.classList.remove('d-none');
         contentArcade.classList.add('d-none');
+        contentShop.classList.add('d-none');
     });
 
+    tabShop.addEventListener('click', () => {
+        playSynthSound([550], [0.08], 'sine', 0.05);
+        tabShop.classList.add('active-tab');
+        tabArcade.classList.remove('active-tab');
+        tabCompiler.classList.remove('active-tab');
+        
+        contentShop.classList.remove('d-none');
+        contentArcade.classList.add('d-none');
+        contentCompiler.classList.add('d-none');
+        
+        // Refresh credit views inside shop tab
+        document.getElementById('shopCredits').innerText = credits;
+    });
+
+    // Hacker compiler keystrokes simulator logic
     const codeBox = document.getElementById('compilerCodeBox');
     const progressText = document.getElementById('compilerProgress');
     const overlay = document.getElementById('compilerOverlay');
@@ -1194,6 +1357,52 @@ function initArcadeTabs() {
             isCompilerComplete = false;
             progressText.innerText = "PROGRESS: 0%";
             overlay.classList.add('d-none');
+        });
+    }
+
+    // Upgrades hardware shop purchase listeners
+    const dblBtn = document.getElementById('buyDoubleBtn');
+    const shldBtn = document.getElementById('buyShieldBtn');
+    const bombBtn = document.getElementById('buyBombBtn');
+    
+    if (dblBtn) {
+        dblBtn.addEventListener('click', () => {
+            if (credits >= 10 && !upgrades.double) {
+                credits -= 10;
+                upgrades.double = true;
+                saveUpgrades();
+                playSynthSound([523.25, 659.25], [0.08, 0.12], 'sine', 0.08); // upgrade success
+            } else if (upgrades.double) {
+                playSynthSound([200], [0.08], 'sine', 0.05); // already owned
+            } else {
+                playSynthSound([150, 100], [0.08, 0.08], 'sawtooth', 0.08); // error
+            }
+        });
+    }
+
+    if (shldBtn) {
+        shldBtn.addEventListener('click', () => {
+            if (credits >= 15) {
+                credits -= 15;
+                upgrades.shield++;
+                saveUpgrades();
+                playSynthSound([523.25, 783.99], [0.08, 0.12], 'sine', 0.08);
+            } else {
+                playSynthSound([150, 100], [0.08, 0.08], 'sawtooth', 0.08);
+            }
+        });
+    }
+
+    if (bombBtn) {
+        bombBtn.addEventListener('click', () => {
+            if (credits >= 25) {
+                credits -= 25;
+                upgrades.bombs++;
+                saveUpgrades();
+                playSynthSound([659.25, 1046.50], [0.08, 0.12], 'sine', 0.08);
+            } else {
+                playSynthSound([150, 100], [0.08, 0.08], 'sawtooth', 0.08);
+            }
         });
     }
 }

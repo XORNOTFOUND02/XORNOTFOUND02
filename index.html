@@ -387,9 +387,10 @@
             <div class="d-flex justify-content-center gap-3 mb-4 border-bottom-cyber pb-3">
                 <button id="tabArcadeBtn" class="btn btn-cyber-outline active-tab font-tech px-3 py-2"><i class="fas fa-gamepad me-2"></i>RETRO ARCADE</button>
                 <button id="tabCompilerBtn" class="btn btn-cyber-outline font-tech px-3 py-2"><i class="fas fa-terminal me-2"></i>HACKER COMPILER</button>
+                <button id="tabShopBtn" class="btn btn-cyber-outline font-tech px-3 py-2"><i class="fas fa-microchip me-2"></i>UPGRADES SHOP</button>
             </div>
 
-            <!-- Container 1: Retro Arcade (Flappy Bug) -->
+            <!-- Container 1: Retro Arcade -->
             <div id="arcadeTabContent" class="tab-content-panel">
                 <div class="arcade-hud d-flex justify-content-between align-items-center mb-3 px-md-4 flex-wrap gap-2">
                     <div class="font-code text-neon-cyan">SCORE: <span id="gameScore" class="fw-bold">0</span></div>
@@ -444,6 +445,38 @@
                         Ayush's neural database model has been fully compiled and unlocked.
                     </p>
                     <button id="resetCompilerBtn" class="btn btn-cyber-outline font-tech py-2 px-3">RESET TERMINAL</button>
+                </div>
+            </div>
+
+            <!-- Container 3: Hardware Upgrades Shop -->
+            <div id="shopTabContent" class="tab-content-panel d-none text-start font-code p-3 bg-terminal-box border-cyber mx-auto" style="max-width: 480px; height: 320px; overflow-y: auto;">
+                <div class="d-flex justify-content-between align-items-center mb-3 border-bottom-cyber pb-2" style="font-size: 11px;">
+                    <span class="text-neon-cyan"><i class="fas fa-microchip me-2"></i>HARDWARE_SHOP.EXE</span>
+                    <span class="text-warning">CREDITS: <span id="shopCredits">0</span> Bytes</span>
+                </div>
+                
+                <div class="shop-item d-flex justify-content-between align-items-center mb-3 p-2 border-cyber bg-black">
+                    <div>
+                        <div class="text-white fw-bold" style="font-size: 11px;">DOUBLE LASERS (2X POWER)</div>
+                        <div class="text-muted" style="font-size: 9px;">Fires two parallel streams of lasers.</div>
+                    </div>
+                    <button id="buyDoubleBtn" class="btn btn-cyber-outline py-1 px-2" style="font-size: 9px; cursor: pointer;">10 BYTES</button>
+                </div>
+                
+                <div class="shop-item d-flex justify-content-between align-items-center mb-3 p-2 border-cyber bg-black">
+                    <div>
+                        <div class="text-white fw-bold" style="font-size: 11px;">FORCE SHIELD (1X BLOCK)</div>
+                        <div class="text-muted" style="font-size: 9px;">Absorbs one fatal crash collision.</div>
+                    </div>
+                    <button id="buyShieldBtn" class="btn btn-cyber-outline py-1 px-2" style="font-size: 9px; cursor: pointer;">15 BYTES</button>
+                </div>
+                
+                <div class="shop-item d-flex justify-content-between align-items-center mb-3 p-2 border-cyber bg-black">
+                    <div>
+                        <div class="text-white fw-bold" style="font-size: 11px;">EMP BOMB (PRESS B)</div>
+                        <div class="text-muted" style="font-size: 9px;">Detonates a shockwave clearing all bugs.</div>
+                    </div>
+                    <button id="buyBombBtn" class="btn btn-cyber-outline py-1 px-2" style="font-size: 9px; cursor: pointer;">25 BYTES</button>
                 </div>
             </div>
         </div>
