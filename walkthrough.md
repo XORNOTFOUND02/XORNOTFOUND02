@@ -45,7 +45,7 @@ We have fully redesigned the portfolio website under `C:/Users/ayush/.gemini/ant
 
 ### 3. Floating Developer CLI Terminal Drawer (Responsive Update)
 - **Concept**: Added a slide-out command line interface drawer at the bottom-left corner of the viewport (accessed via the floating `[>_]` button).
-- **Responsive Layout**: Upgraded drawer css with media rules (`max-width: calc(100vw - 40px)`) to automatically adjust widths on mobile and tablet displays, eliminating horizontal cuts.
+- **Clipping Fixes**: Configured explicit padding overrides (`padding: 12px 16px !important`), width resets (`width: 100% !important; margin: 0 !important;`), and box-sizing constraints to guarantee header and body text never shift past the container boundaries.
 - **Advanced CLI Cockpit Commands**:
   - `help`: lists all available terminal commands.
   - `about`: details your name, handle, and professional history.
@@ -53,6 +53,7 @@ We have fully redesigned the portfolio website under `C:/Users/ayush/.gemini/ant
   - `rivoxa`: searches for details on the Rivoxa digital marketing agency.
   - `contact`: lists your email and instagram handle.
   - `system`: prints simulated diagnostic network logs (telemetry CPU temp, threads uptime).
+  - `audit` / `scan`: initiates progressive network probe diagnostic sweeps.
   - `credits`: displays Byte/Credits balance.
   - `theme [cyan/magenta/green/yellow]`: swaps accent theme colors.
   - `beats [play/stop]`: controls ambient audio playback.
