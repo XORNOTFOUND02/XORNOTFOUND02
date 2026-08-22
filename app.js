@@ -186,7 +186,7 @@ function initSkillRedirects() {
 }
 
 
-// --- 4. FLAPPY BUG CANVAS GAME ENGINE WITH DIFFICULTY SCALING ---
+// --- 4. RETRO SPACE SHOOTER (FIGHTER JET) ENGINE ---
 let canvas = null;
 let ctx = null;
 let gameInterval = null;
@@ -194,27 +194,29 @@ let gameActive = false;
 
 // Physics scaling values mapped to difficulty settings
 const diffSettings = {
-    easy: { gravity: 0.18, jump: -3.8, pipeSpeed: 1.2, pipeSpacing: 230, pipeGap: 122 },
-    medium: { gravity: 0.22, jump: -4.2, pipeSpeed: 1.6, pipeSpacing: 190, pipeGap: 108 },
-    hard: { gravity: 0.26, jump: -4.5, pipeSpeed: 2.3, pipeSpacing: 140, pipeGap: 95 }
+    easy: { enemySpeed: 1.0, spawnRate: 80, bulletSpeed: 4 },
+    medium: { enemySpeed: 1.6, spawnRate: 55, bulletSpeed: 5 },
+    hard: { enemySpeed: 2.3, spawnRate: 35, bulletSpeed: 6 }
 };
-const PIPE_WIDTH = 44;
 
 let currentDiff = 'easy';
+let currentSkin = 'visor'; // Default visor jet
 
 // State parameters
-let visorY = 160;
-let visorVelocity = 0;
-const visorX = 75;
-const visorRadius = 11;
+let playerX = 240;
+const playerY = 290;
+const playerWidth = 24;
+const playerHeight = 18;
+
 let score = 0;
 let highScore = 0;
-let pipes = [];
+let bullets = [];
+let enemies = [];
 let gameFrame = 0;
 
 function loadHighScore() {
     try {
-        const stored = localStorage.getItem('xor_flappy_high');
+        const stored = localStorage.getItem('xor_shooter_high');
         if (stored) {
             highScore = parseInt(stored);
             document.getElementById('gameHighScore').innerText = highScore;
@@ -229,7 +231,7 @@ function saveHighScore() {
         highScore = score;
         document.getElementById('gameHighScore').innerText = highScore;
         try {
-            localStorage.setItem('xor_flappy_high', highScore);
+            localStorage.setItem('xor_shooter_high', highScore);
         } catch (e) {
             console.warn("localStorage score write error:", e);
         }
@@ -237,7 +239,7 @@ function saveHighScore() {
 }
 
 function initGame() {
-    canvas = document.getElementById('flappyCanvas');
+    canvas = document.getElementById('flappyCanvas'); // keep canvas ID to prevent layout breakage
     if (!canvas) return;
     
     ctx = canvas.getContext('2d');
@@ -250,34 +252,39 @@ function initGame() {
         startGame();
     });
     
-    canvas.addEventListener('click', (e) => {
-        e.stopPropagation();
-        handleCanvasTap();
+    // Move controls over canvas bounds
+    canvas.addEventListener('mousemove', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const relativeX = (e.clientX - rect.left) * scaleX;
+        
+        playerX = Math.max(playerWidth, Math.min(canvas.width - playerWidth, relativeX));
     });
 
-    canvas.addEventListener('touchstart', (e) => {
+    // Touch control
+    canvas.addEventListener('touchmove', (e) => {
         e.preventDefault();
-        e.stopPropagation();
-        handleCanvasTap();
+        const rect = canvas.getBoundingClientRect();
+        const touch = e.touches[0];
+        const scaleX = canvas.width / rect.width;
+        const relativeX = (touch.clientX - rect.left) * scaleX;
+        
+        playerX = Math.max(playerWidth, Math.min(canvas.width - playerWidth, relativeX));
     }, { passive: false });
 
-    // Keyboard Spacebar Jump
+    // Keyboard Arrow Keys
     document.addEventListener('keydown', (e) => {
-        if (e.code === 'Space') {
-            const rect = canvas.getBoundingClientRect();
-            const isInViewport = (
-                rect.top >= 0 &&
-                rect.bottom <= (window.innerHeight || document.documentElement.clientHeight)
-            );
-            
-            if (isInViewport) {
-                e.preventDefault();
-                handleCanvasTap();
-            }
+        const arcadeTab = document.getElementById('arcadeTabContent');
+        if (arcadeTab && arcadeTab.classList.contains('d-none')) return;
+
+        if (e.code === 'ArrowLeft') {
+            playerX = Math.max(playerWidth, playerX - 16);
+        } else if (e.code === 'ArrowRight') {
+            playerX = Math.min(canvas.width - playerWidth, playerX + 16);
         }
     });
 
-    // Difficulty settings selectors
+    // Difficulty selectors
     const diffButtons = document.querySelectorAll('[data-diff]');
     diffButtons.forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -289,12 +296,24 @@ function initGame() {
             playSynthSound([500, 700], [0.06, 0.08], 'sine', 0.05);
             
             if (gameActive) {
-                triggerGameOver(); // reset active run
+                triggerGameOver();
             } else {
                 drawInitialGrid();
             }
         });
     });
+
+    // Skin selector
+    const skinSelect = document.getElementById('gameSkinSelect');
+    if (skinSelect) {
+        skinSelect.addEventListener('change', (e) => {
+            currentSkin = skinSelect.value;
+            playSynthSound([550, 750], [0.05, 0.05], 'sine', 0.05);
+            if (!gameActive) {
+                drawInitialGrid();
+            }
+        });
+    }
     
     drawInitialGrid();
 }
@@ -317,16 +336,16 @@ function drawInitialGrid() {
         ctx.stroke();
     }
     
-    drawVisor(visorX, visorY);
+    drawPlayerJet(playerX, playerY);
 }
 
 function startGame() {
     if (gameActive) return;
     
-    visorY = 140;
-    visorVelocity = 0;
+    playerX = 240;
     score = 0;
-    pipes = [];
+    bullets = [];
+    enemies = [];
     gameFrame = 0;
     gameActive = true;
     
@@ -337,16 +356,6 @@ function startGame() {
     
     if (gameInterval) clearInterval(gameInterval);
     gameInterval = setInterval(updateGameLoop, 1000 / 60);
-}
-
-function handleCanvasTap() {
-    const settings = diffSettings[currentDiff];
-    if (!gameActive) {
-        startGame();
-    } else {
-        visorVelocity = settings.jump;
-        playJumpSound();
-    }
 }
 
 function triggerGameOver() {
@@ -360,10 +369,10 @@ function triggerGameOver() {
     const subtitle = document.getElementById('overlaySubtitle');
     const btn = document.getElementById('startGameBtn');
     
-    title.innerText = "COMPILER CRASH!";
+    title.innerText = "JET CRASHED!";
     title.className = "font-tech text-neon-magenta mb-2";
-    subtitle.innerText = `[${currentDiff.toUpperCase()} MODE] Final Score: ${score}. High Score: ${highScore}. Try again to debug!`;
-    btn.innerText = "RESTART GAME";
+    subtitle.innerText = `[${currentDiff.toUpperCase()} MODE] Score: ${score}. High Score: ${highScore}. Defend the network next time!`;
+    btn.innerText = "RESTART MISSION";
     
     overlay.classList.remove('d-none');
 }
@@ -372,85 +381,139 @@ function updateGameLoop() {
     gameFrame++;
     const settings = diffSettings[currentDiff];
     
-    visorVelocity += settings.gravity;
-    visorY += visorVelocity;
-    
-    if (visorY + visorRadius >= canvas.height) {
-        visorY = canvas.height - visorRadius;
-        triggerGameOver();
-        return;
-    }
-    if (visorY - visorRadius <= 0) {
-        visorY = visorRadius;
-        visorVelocity = 0.5;
+    // Automatic shoot every 14 frames
+    if (gameFrame % 14 === 0) {
+        bullets.push({ x: playerX, y: playerY - 10 });
+        playSynthSound([600, 900], [0.03, 0.03], 'sine', 0.02); // Laser sound
     }
     
-    if (gameFrame % settings.pipeSpacing === 0 || pipes.length === 0) {
-        const minHeight = 40;
-        const maxHeight = canvas.height - settings.pipeGap - minHeight;
-        const topHeight = Math.floor(Math.random() * (maxHeight - minHeight)) + minHeight;
-        const bottomHeight = canvas.height - topHeight - settings.pipeGap;
-        
-        pipes.push({
-            x: canvas.width,
-            top: topHeight,
-            bottom: bottomHeight,
-            passed: false
+    // Spawn enemies
+    if (gameFrame % settings.spawnRate === 0) {
+        const enemyWidth = 24;
+        const enemyX = Math.random() * (canvas.width - enemyWidth * 2) + enemyWidth;
+        enemies.push({
+            x: enemyX,
+            y: -10,
+            width: enemyWidth,
+            height: 16,
+            speed: settings.enemySpeed + Math.random() * 0.3
         });
     }
     
-    for (let i = pipes.length - 1; i >= 0; i--) {
-        pipes[i].x -= settings.pipeSpeed;
-        
-        if (!pipes[i].passed && pipes[i].x + PIPE_WIDTH < visorX) {
-            pipes[i].passed = true;
-            score++;
-            document.getElementById('gameScore').innerText = score;
-            playScoreSound();
+    // Update bullets
+    for (let i = bullets.length - 1; i >= 0; i--) {
+        bullets[i].y -= settings.bulletSpeed;
+        if (bullets[i].y < 0) {
+            bullets.splice(i, 1);
         }
+    }
+    
+    // Update enemies
+    for (let i = enemies.length - 1; i >= 0; i--) {
+        enemies[i].y += enemies[i].speed;
         
-        if (checkCollision(pipes[i])) {
+        // Check collision with player
+        if (checkPlayerCollision(enemies[i])) {
             triggerGameOver();
             return;
         }
         
-        if (pipes[i].x + PIPE_WIDTH < 0) {
-            pipes.splice(i, 1);
+        // Leak in system (enemy reaches bottom)
+        if (enemies[i].y > canvas.height) {
+            triggerGameOver();
+            return;
+        }
+        
+        // Bullet collisions
+        for (let j = bullets.length - 1; j >= 0; j--) {
+            if (checkBulletCollision(bullets[j], enemies[i])) {
+                bullets.splice(j, 1);
+                enemies.splice(i, 1);
+                score++;
+                document.getElementById('gameScore').innerText = score;
+                playSynthSound([500, 300], [0.06, 0.06], 'sawtooth', 0.04); // Explode sound
+                break;
+            }
         }
     }
     
     renderCanvas();
 }
 
-function checkCollision(pipe) {
-    if (visorX + visorRadius > pipe.x && visorX - visorRadius < pipe.x + PIPE_WIDTH) {
-        const settings = diffSettings[currentDiff];
-        if (visorY - visorRadius < pipe.top || visorY + visorRadius > canvas.height - pipe.bottom) {
-            return true;
-        }
-    }
-    return false;
+function checkPlayerCollision(enemy) {
+    return (
+        enemy.x - enemy.width/2 < playerX + playerWidth/2 &&
+        enemy.x + enemy.width/2 > playerX - playerWidth/2 &&
+        enemy.y - enemy.height/2 < playerY + playerHeight/2 &&
+        enemy.y + enemy.height/2 > playerY - playerHeight/2
+    );
 }
 
-function drawVisor(x, y) {
+function checkBulletCollision(bullet, enemy) {
+    return (
+        bullet.x > enemy.x - enemy.width/2 &&
+        bullet.x < enemy.x + enemy.width/2 &&
+        bullet.y > enemy.y - enemy.height/2 &&
+        bullet.y < enemy.y + enemy.height/2
+    );
+}
+
+function drawPlayerJet(x, y) {
     const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--neon-cyan').trim() || '#00f0ff';
-    
     ctx.shadowBlur = 10;
     ctx.shadowColor = accentColor;
     
-    ctx.fillStyle = accentColor;
-    ctx.beginPath();
-    ctx.arc(x, y, visorRadius, 0, Math.PI * 2);
-    ctx.fill();
-    
-    ctx.shadowBlur = 0;
-    ctx.fillStyle = '#020305';
-    ctx.fillRect(x - visorRadius - 1, y - 3, (visorRadius * 2) + 2, 6);
-    
-    ctx.shadowBlur = 8;
-    ctx.shadowColor = '#ff007f';
-    ctx.fillStyle = '#ff007f';
-    ctx.fillRect(x - 5, y - 1, 10, 2);
+    if (currentSkin === 'visor') {
+        // Cyan space fighter jet
+        ctx.fillStyle = accentColor;
+        ctx.beginPath();
+        ctx.moveTo(x, y - 10);
+        ctx.lineTo(x - 12, y + 8);
+        ctx.lineTo(x - 4, y + 4);
+        ctx.lineTo(x + 4, y + 4);
+        ctx.lineTo(x + 12, y + 8);
+        ctx.closePath();
+        ctx.fill();
+        
+        // Neon thruster
+        ctx.fillStyle = '#ff007f';
+        ctx.shadowColor = '#ff007f';
+        ctx.fillRect(x - 3, y + 5, 6, 4);
+    } 
+    else if (currentSkin === 'glitch') {
+        // Green matrix fighter jet shape
+        ctx.fillStyle = accentColor;
+        ctx.font = "bold 13px monospace";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("▲", x, y);
+        ctx.fillText("01", x - 10, y + 4);
+        ctx.fillText("10", x + 10, y + 4);
+    } 
+    else if (currentSkin === 'skull') {
+        // Red alien command jet
+        ctx.shadowColor = '#ff007f';
+        ctx.fillStyle = '#ff007f';
+        ctx.beginPath();
+        ctx.moveTo(x, y - 8);
+        ctx.lineTo(x - 10, y + 6);
+        ctx.lineTo(x + 10, y + 6);
+        ctx.closePath();
+        ctx.fill();
+        
+        ctx.fillStyle = '#ffffff';
+        ctx.font = "8px monospace";
+        ctx.fillText("☠", x, y + 1);
+    } 
+    else if (currentSkin === 'pixel') {
+        // Orange retro arcade cube ship
+        ctx.shadowColor = '#f59e0b';
+        ctx.fillStyle = '#f59e0b';
+        ctx.fillRect(x - 8, y - 4, 16, 8);
+        ctx.fillRect(x - 2, y - 8, 4, 4);
+        ctx.fillRect(x - 12, y + 2, 4, 4);
+        ctx.fillRect(x + 8, y + 2, 4, 4);
+    }
     
     ctx.shadowBlur = 0;
 }
@@ -458,6 +521,7 @@ function drawVisor(x, y) {
 function renderCanvas() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
+    // Grid backdrop
     ctx.strokeStyle = '#090d14';
     ctx.lineWidth = 1;
     for (let x = 0; x < canvas.width; x += 20) {
@@ -473,27 +537,33 @@ function renderCanvas() {
         ctx.stroke();
     }
     
-    pipes.forEach(pipe => {
-        ctx.shadowBlur = 8;
-        ctx.shadowColor = 'rgba(255, 0, 127, 0.4)';
-        ctx.strokeStyle = '#ff007f';
-        ctx.fillStyle = 'rgba(255, 0, 127, 0.08)';
-        ctx.lineWidth = 2;
-        
-        ctx.beginPath();
-        ctx.rect(pipe.x, 0, PIPE_WIDTH, pipe.top);
-        ctx.fill();
-        ctx.stroke();
-        
-        ctx.beginPath();
-        ctx.rect(pipe.x, canvas.height - pipe.bottom, PIPE_WIDTH, pipe.bottom);
-        ctx.fill();
-        ctx.stroke();
-        
-        ctx.shadowBlur = 0;
+    // Draw bullets
+    const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--neon-cyan').trim() || '#00f0ff';
+    ctx.fillStyle = accentColor;
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = accentColor;
+    bullets.forEach(b => {
+        ctx.fillRect(b.x - 2, b.y - 4, 4, 8);
     });
     
-    drawVisor(visorX, visorY);
+    // Draw enemies (Bugs)
+    ctx.shadowColor = '#ff007f';
+    ctx.fillStyle = '#ff007f';
+    enemies.forEach(e => {
+        ctx.fillRect(e.x - 8, e.y - 6, 16, 12);
+        // Antennas
+        ctx.fillRect(e.x - 6, e.y - 10, 2, 4);
+        ctx.fillRect(e.x + 4, e.y - 10, 2, 4);
+        // Eyes
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(e.x - 4, e.y - 4, 2, 2);
+        ctx.fillRect(e.x + 2, e.y - 4, 2, 2);
+        ctx.fillStyle = '#ff007f';
+    });
+    
+    ctx.shadowBlur = 0;
+    
+    drawPlayerJet(playerX, playerY);
 }
 
 
@@ -725,7 +795,7 @@ function initCursorFollower() {
     updateCursor();
     
     function addHoverListeners() {
-        const hoverTargets = document.querySelectorAll('a, button, .clickable-skill, .accent-dot, .compiler-tab, #flappyCanvas');
+        const hoverTargets = document.querySelectorAll('a, button, .clickable-skill, .accent-dot, .compiler-tab, #flappyCanvas, select');
         hoverTargets.forEach(el => {
             el.addEventListener('mouseenter', () => cursor.classList.add('cursor-hover'));
             el.addEventListener('mouseleave', () => cursor.classList.remove('cursor-hover'));
@@ -899,8 +969,8 @@ function processTerminalDrawerCommand(cmd) {
         case 'cheat':
             highScore = 999;
             document.getElementById('gameHighScore').innerText = highScore;
-            localStorage.setItem('xor_flappy_high', 999);
-            appendTerminalDrawerLog(`<span class="text-success">[CHEAT ACTIVATED] Flappy Bug High Score set to 999!</span>`);
+            localStorage.setItem('xor_shooter_high', 999);
+            appendTerminalDrawerLog(`<span class="text-success">[CHEAT ACTIVATED] Space Shooter High Score set to 999!</span>`);
             break;
             
         case 'glitch':
@@ -972,7 +1042,6 @@ function initTerminalDrawer() {
     
     if (!toggleBtn || !drawer || !closeBtn || !form || !input) return;
     
-    // Open drawer
     toggleBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         drawer.classList.toggle('d-none');
@@ -982,14 +1051,12 @@ function initTerminalDrawer() {
         }
     });
     
-    // Close drawer
     closeBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         drawer.classList.add('d-none');
         playSynthSound([600, 400], [0.08, 0.1], 'sine', 0.05);
     });
     
-    // Form submit
     form.addEventListener('submit', (e) => {
         e.preventDefault();
         const cmdVal = input.value;
@@ -999,7 +1066,140 @@ function initTerminalDrawer() {
 }
 
 
-// --- 14. STATE ENGINE STARTUP ---
+// --- 14. ARCADE INTERACTIVE TABS & HACKER COMPILER SIMULATOR ---
+const pythonHackerCode = `import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.pipeline import Pipeline
+from sklearn.metrics import classification_report, accuracy_score
+
+# --- XORNOTFOUND NEURAL NETWORK INGESTION ---
+class CyberClassifier:
+    def __init__(self, learning_rate=0.01, epochs=1000):
+        self.lr = learning_rate
+        self.epochs = epochs
+        self.weights = None
+        self.bias = None
+
+    def sigmoid(self, z):
+        return 1 / (1 + np.exp(-z))
+
+    def fit(self, X, y):
+        n_samples, n_features = X.shape
+        self.weights = np.zeros(n_features)
+        self.bias = 0
+
+        # Gradient Descent loop optimizer
+        for epoch in range(self.epochs):
+            linear_model = np.dot(X, self.weights) + self.bias
+            predictions = self.sigmoid(linear_model)
+
+            dw = (1 / n_samples) * np.dot(X.T, (predictions - y))
+            db = (1 / n_samples) * np.sum(predictions - y)
+
+            self.weights -= self.lr * dw
+            self.bias -= self.lr * db
+            
+    def predict(self, X):
+        linear_model = np.dot(X, self.weights) + self.bias
+        predictions = self.sigmoid(linear_model)
+        return [1 if i > 0.5 else 0 for i in predictions]
+
+# Initializing Scikit-Learn Data Pipeline
+pipeline = Pipeline([
+    ('scaler', StandardScaler()),
+    ('classifier', RandomForestClassifier(n_estimators=100, random_state=42))
+])
+
+# Training model segment
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+pipeline.fit(X_train, y_train)
+
+# System evaluation logs
+predictions = pipeline.predict(X_test)
+print("COMPILER SCORE: ", accuracy_score(y_test, predictions))
+print(classification_report(y_test, predictions))
+# UNLOCKED SECTOR STATUS: 100% OK
+`;
+
+let compilerCodeIndex = 0;
+let isCompilerComplete = false;
+
+function initArcadeTabs() {
+    const tabArcade = document.getElementById('tabArcadeBtn');
+    const tabCompiler = document.getElementById('tabCompilerBtn');
+    const contentArcade = document.getElementById('arcadeTabContent');
+    const contentCompiler = document.getElementById('compilerTabContent');
+    
+    if (!tabArcade || !tabCompiler || !contentArcade || !contentCompiler) return;
+    
+    tabArcade.addEventListener('click', () => {
+        playSynthSound([500], [0.08], 'sine', 0.05);
+        tabArcade.classList.add('active-tab');
+        tabCompiler.classList.remove('active-tab');
+        contentArcade.classList.remove('d-none');
+        contentCompiler.classList.add('d-none');
+    });
+    
+    tabCompiler.addEventListener('click', () => {
+        playSynthSound([600], [0.08], 'sine', 0.05);
+        tabCompiler.classList.add('active-tab');
+        tabArcade.classList.remove('active-tab');
+        contentCompiler.classList.remove('d-none');
+        contentArcade.classList.add('d-none');
+    });
+
+    const codeBox = document.getElementById('compilerCodeBox');
+    const progressText = document.getElementById('compilerProgress');
+    const overlay = document.getElementById('compilerOverlay');
+    const resetBtn = document.getElementById('resetCompilerBtn');
+
+    window.addEventListener('keydown', (e) => {
+        if (contentCompiler.classList.contains('d-none') || isCompilerComplete) return;
+        
+        if (["Space", "ArrowUp", "ArrowDown", "Tab"].includes(e.code)) {
+            e.preventDefault();
+        }
+
+        if (compilerCodeIndex === 0) {
+            codeBox.innerHTML = "";
+        }
+
+        const charsPerPress = 5;
+        const slice = pythonHackerCode.substring(compilerCodeIndex, compilerCodeIndex + charsPerPress);
+        codeBox.innerText += slice;
+        compilerCodeIndex += charsPerPress;
+
+        codeBox.scrollTop = codeBox.scrollHeight;
+
+        const progress = Math.min(100, Math.floor((compilerCodeIndex / pythonHackerCode.length) * 100));
+        progressText.innerText = `PROGRESS: ${progress}%`;
+
+        playSynthSound([1500 - (progress * 10)], [0.04], 'sine', 0.04);
+
+        if (progress >= 100) {
+            isCompilerComplete = true;
+            playSynthSound([523.25, 659.25, 783.99, 1046.50], [0.15, 0.15, 0.15, 0.5], 'triangle', 0.1);
+            overlay.classList.remove('d-none');
+        }
+    });
+
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            playSynthSound([600, 400], [0.08, 0.1], 'sine', 0.05);
+            codeBox.innerText = "Click here and type any keys on your keyboard to compile machine learning models...";
+            compilerCodeIndex = 0;
+            isCompilerComplete = false;
+            progressText.innerText = "PROGRESS: 0%";
+            overlay.classList.add('d-none');
+        });
+    }
+}
+
+
+// --- 15. STATE ENGINE STARTUP ---
 document.addEventListener('DOMContentLoaded', () => {
     initTypingAnimation();
     initSkillRedirects();
@@ -1014,4 +1214,5 @@ document.addEventListener('DOMContentLoaded', () => {
     initMatrixRain();
     initTerminalDrawer();
     initHeadingGlitches();
+    initArcadeTabs();
 });

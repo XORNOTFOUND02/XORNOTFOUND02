@@ -575,6 +575,13 @@ body {
     100% { box-shadow: 0 0 30px rgba(0, 240, 255, 0.6); }
 }
 
+/* Active tab selectors for Arcade / Compiler panels */
+.active-tab {
+    background-color: var(--neon-cyan) !important;
+    color: var(--bg-darker) !important;
+    box-shadow: var(--cyan-glow);
+}
+
 /* Floating HUD Terminal Toggle Button */
 .btn-hud-terminal {
     position: fixed;
