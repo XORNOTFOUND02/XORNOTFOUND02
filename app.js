@@ -1135,6 +1135,7 @@ function processTerminalDrawerCommand(cmd) {
             - <span class="text-yellow">rivoxa</span>: Evaluates Rivoxa Agency profile.<br>
             - <span class="text-yellow">contact</span>: Prints contact coordinates.<br>
             - <span class="text-yellow">system</span>: Prints simulated server diagnostics telemetry.<br>
+            - <span class="text-yellow">audit</span> / <span class="text-yellow">scan</span>: Performs network diagnostics check.<br>
             - <span class="text-yellow">credits</span>: Displays Byte/Credits balance.<br>
             - <span class="text-yellow">theme [cyan/magenta/green/yellow]</span>: Swaps accents.<br>
             - <span class="text-yellow">beats [play/stop]</span>: Toggles music tracks.<br>
@@ -1171,6 +1172,29 @@ function processTerminalDrawerCommand(cmd) {
             INSTA: <span class="text-neon-cyan">@__ayushzz_</span>`);
             break;
             
+        case 'scan':
+        case 'audit':
+            appendTerminalDrawerLog(`<span class="text-warning">[INITIATING SECURITY AUDIT ON PORTFOLIO SECTORS...]</span>`);
+            let scanStep = 0;
+            const scanLogs = [
+                "Scanning port 8000 (Local Host)... OPEN",
+                "Auditing encryption handshakes... SECURE",
+                "Probing database injection nodes... SAFE (0 vulnerabilities)",
+                "Analyzing network traffic filters... COMPILER STABLE",
+                "Sanitizing memory stacks... WIPE SUCCESSFUL",
+                "<span class='text-success'>[AUDIT COMPLETE] Systems 100% secured & optimized.</span>"
+            ];
+            function runScanAnimation() {
+                if (scanStep < scanLogs.length) {
+                    appendTerminalDrawerLog(`[+] ${scanLogs[scanStep]}`);
+                    scanStep++;
+                    playSynthSound([800 + (scanStep * 80)], [0.05], 'sine', 0.04);
+                    setTimeout(runScanAnimation, 600);
+                }
+            }
+            setTimeout(runScanAnimation, 400);
+            break;
+
         case 'system':
         case 'status':
             appendTerminalDrawerLog(`[DIAGNOSING NETWORK TELEMETRY]:<br>
