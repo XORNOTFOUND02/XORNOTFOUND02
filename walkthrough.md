@@ -1,4 +1,4 @@
-# Walkthrough - Final Redesign: Space Shooter, Skills Search & Rivoxa Agency (Ayush Shukla)
+# Walkthrough - Final Redesign: Space Shooter, Upgrades Shop & Rivoxa Agency (Ayush Shukla)
 
 We have fully redesigned the portfolio website under `C:/Users/ayush/.gemini/antigravity/scratch/gaming-portfolio/`. All previous gaming systems have been replaced with a high-fidelity cyber-developer theme featuring interactive elements, an embedded arcade canvas game, and a direct recruitment portal.
 
@@ -13,7 +13,7 @@ We have fully redesigned the portfolio website under `C:/Users/ayush/.gemini/ant
 
 ---
 
-## Game Engine Upgrade
+## Game Engine & Hardware Upgrades Shop
 
 ### 1. Retro Space Shooter (Fighter Jet Shooter)
 - **Concept**: Control a cyber fighter jet at the bottom of the canvas, navigating left/right automatically firing laser beams at incoming insect-like code bugs.
@@ -21,6 +21,13 @@ We have fully redesigned the portfolio website under `C:/Users/ayush/.gemini/ant
 - **Difficulty settings**: easy (slow bugs), medium, hard (fast bugs spawning rapidly).
 - **Skin integration**: customize your jet to represent a Cyber Visor (cyan shape), Matrix Glitch (neon letter), Crimson Alien (skull), or Pixel Cruiser (orange box).
 - **Audio Synths**: fires laser beams and triggers explosions dynamically using native oscillators.
+
+### 2. Interactive Upgrades Hardware Shop Tab
+- **Currency System**: Destroying insect bugs inside the Shooter game rewards you with **Bytes/Credits** (e.g. 1 bug = 1 Byte). Your balances persist across page loads using `localStorage`.
+- **Purchase upgrades in the Shop**:
+  - **Double Lasers (10 Bytes)**: Upgrades your offensive stream to fire parallel laser bolts, doubling damage area.
+  - **Force Shield (15 Bytes)**: Grants a cyan glowing ring shield around the ship. Absorbs one fatal collision crash before systems fail, allowing you to survive error collisions.
+  - **EMP Bomb (25 Bytes)**: Grants shockwave charges. Press **`B`** on your keyboard during a mission to trigger a screen-wide EMP flash that instantly vaporizes all active bugs and awards Byte points for each bug destroyed.
 
 ---
 
@@ -47,7 +54,7 @@ We have fully redesigned the portfolio website under `C:/Users/ayush/.gemini/ant
   - `matrix` / `hack`: decrypts system archives and boots up the Matrix Rain takeover screen.
   - `glitch`: scrambles all layout headers on the page.
   - `clear`: clears out the logs buffer.
-  - `cheat`: easter egg that sets the high score to 999.
+  - `cheat`: easter egg that sets the high score to 999 and maxes out shop Byte credits.
 
 ### 4. Hacker Compiler Simulator Mode
 - **Tab Panel**: Accessed via the **"HACKER COMPILER"** tab next to the game.
