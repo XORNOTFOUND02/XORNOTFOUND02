@@ -578,7 +578,7 @@ function drawPlayerJet(x, y) {
         ctx.strokeStyle = accentColor;
         ctx.lineWidth = 1.8;
         ctx.beginPath();
-        ctx.arc(x, y, visorRadius + 7, 0, Math.PI * 2);
+        ctx.arc(x, y, 18, 0, Math.PI * 2);
         ctx.stroke();
     }
 
@@ -1051,16 +1051,98 @@ function processTerminalDrawerCommand(cmd) {
     appendTerminalDrawerLog(`<span class="text-neon-cyan">Guest@XORNOTFOUND:~#</span> ${cmd}`);
     playSynthSound([600], [0.06], 'sine', 0.08);
     
+    // Command prefixes parser
+    if (cmd.startsWith('theme ')) {
+        const color = cmd.substring(6).trim();
+        const dot = document.querySelector(`.accent-dot[data-color="${color}"]`);
+        if (dot) {
+            dot.click();
+            appendTerminalDrawerLog(`<span class="text-success">[THEME] Successfully swapped theme color to ${color.toUpperCase()}.</span>`);
+        } else {
+            appendTerminalDrawerLog(`<span class="text-danger">[THEME] Color accent '${color}' not found. Available: cyan, magenta, green, yellow.</span>`);
+        }
+        return;
+    }
+    
+    if (cmd.startsWith('beats ')) {
+        const action = cmd.substring(6).trim();
+        if (action === 'play' || action === 'start' || action === 'on') {
+            if (!musicActive) {
+                document.getElementById('bgMusicBtn').click();
+            }
+            appendTerminalDrawerLog(`<span class="text-success">[BEATS] Space ambient sound loop initiated.</span>`);
+        } else if (action === 'stop' || action === 'pause' || action === 'off') {
+            if (musicActive) {
+                document.getElementById('bgMusicBtn').click();
+            }
+            appendTerminalDrawerLog(`<span class="text-warning">[BEATS] Sound loop deactivated.</span>`);
+        } else {
+            appendTerminalDrawerLog(`<span class="text-danger">[BEATS] Usage: beats play | beats stop</span>`);
+        }
+        return;
+    }
+    
+    if (cmd.startsWith('game ')) {
+        const action = cmd.substring(5).trim();
+        if (action === 'start' || action === 'play') {
+            document.getElementById('tabArcadeBtn').click();
+            startGame();
+            appendTerminalDrawerLog(`<span class="text-success">[GAME] Cyber Jet Shooter starting...</span>`);
+        } else if (action === 'stop' || action === 'exit' || action === 'over') {
+            if (gameActive) triggerGameOver();
+            appendTerminalDrawerLog(`<span class="text-warning">[GAME] Mission aborted.</span>`);
+        } else {
+            appendTerminalDrawerLog(`<span class="text-danger">[GAME] Usage: game start | game stop</span>`);
+        }
+        return;
+    }
+    
+    if (cmd.startsWith('diff ') || cmd.startsWith('difficulty ')) {
+        const diff = cmd.replace('difficulty ', '').replace('diff ', '').trim();
+        const diffBtn = document.getElementById(`diff${diff.charAt(0).toUpperCase() + diff.slice(1)}`);
+        if (diffBtn) {
+            diffBtn.click();
+            appendTerminalDrawerLog(`<span class="text-success">[DIFF] Game difficulty successfully set to ${diff.toUpperCase()}.</span>`);
+        } else {
+            appendTerminalDrawerLog(`<span class="text-danger">[DIFF] Options: easy, medium, hard</span>`);
+        }
+        return;
+    }
+    
+    if (cmd.startsWith('buy ')) {
+        const item = cmd.substring(4).trim();
+        if (item === 'double' || item === 'laser' || item === 'lasers') {
+            document.getElementById('buyDoubleBtn').click();
+            appendTerminalDrawerLog(`<span class="text-success">[SHOP] Dispatched Double Laser request. Check Upgrades console.</span>`);
+        } else if (item === 'shield' || item === 'force') {
+            document.getElementById('buyShieldBtn').click();
+            appendTerminalDrawerLog(`<span class="text-success">[SHOP] Dispatched Shield module request. Check Upgrades console.</span>`);
+        } else if (item === 'bomb' || item === 'emp') {
+            document.getElementById('buyBombBtn').click();
+            appendTerminalDrawerLog(`<span class="text-success">[SHOP] Dispatched EMP Bomb request. Check Upgrades console.</span>`);
+        } else {
+            appendTerminalDrawerLog(`<span class="text-danger">[SHOP] Usage: buy double | buy shield | buy bomb</span>`);
+        }
+        return;
+    }
+
     switch (cmd) {
         case 'help':
             appendTerminalDrawerLog(`Available Commands:<br>
             - <span class="text-yellow">help</span>: Lists all scripts.<br>
             - <span class="text-yellow">about</span>: Prints developer bio details.<br>
-            - <span class="text-yellow">skills</span>: Evaluates technical languages stack.<br>
+            - <span class="text-yellow">skills</span>: Evaluates technical stack.<br>
             - <span class="text-yellow">rivoxa</span>: Evaluates Rivoxa Agency profile.<br>
             - <span class="text-yellow">contact</span>: Prints contact coordinates.<br>
-            - <span class="text-yellow">matrix</span> / <span class="text-yellow">hack</span>: Decrypts security overlay.<br>
-            - <span class="text-yellow">glitch</span>: Triggers cyber matrix text scrambler.<br>
+            - <span class="text-yellow">system</span>: Prints simulated server diagnostics telemetry.<br>
+            - <span class="text-yellow">credits</span>: Displays Byte/Credits balance.<br>
+            - <span class="text-yellow">theme [cyan/magenta/green/yellow]</span>: Swaps accents.<br>
+            - <span class="text-yellow">beats [play/stop]</span>: Toggles music tracks.<br>
+            - <span class="text-yellow">game [start/stop]</span>: Controls Shooter arcade.<br>
+            - <span class="text-yellow">diff [easy/medium/hard]</span>: Updates game speed.<br>
+            - <span class="text-yellow">buy [double/shield/bomb]</span>: Purchase shop modules.<br>
+            - <span class="text-yellow">matrix</span>: Decrypts security overlay.<br>
+            - <span class="text-yellow">glitch</span>: Scrambles viewport headings.<br>
             - <span class="text-yellow">clear</span>: Wipes log buffers.`);
             break;
             
@@ -1087,6 +1169,21 @@ function processTerminalDrawerCommand(cmd) {
         case 'contact':
             appendTerminalDrawerLog(`EMAIL: <span class="text-neon-magenta">rivoxapvt@gmail.com</span><br>
             INSTA: <span class="text-neon-cyan">@__ayushzz_</span>`);
+            break;
+            
+        case 'system':
+        case 'status':
+            appendTerminalDrawerLog(`[DIAGNOSING NETWORK TELEMETRY]:<br>
+            - CPU TEMP: 44.2°C (STABLE)<br>
+            - UPTIME: 247.8 Hours (ACTIVE)<br>
+            - THREADS: 8 Active Pools<br>
+            - MEMORY LEAK RATE: 0.00% (SECURE)<br>
+            - SECTOR SECURE DECRYPTION: 100% OK`);
+            break;
+
+        case 'credits':
+        case 'balance':
+            appendTerminalDrawerLog(`[ACCOUNT BALANCE]: ${credits} Bytes/Credits available.`);
             break;
             
         case 'matrix':

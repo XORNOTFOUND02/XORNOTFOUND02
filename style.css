@@ -613,6 +613,7 @@ body {
     bottom: 90px;
     left: 30px;
     width: 400px;
+    max-width: calc(100vw - 60px);
     height: 300px;
     background-color: rgba(3, 4, 7, 0.95);
     border: 2px solid var(--neon-cyan);
@@ -623,6 +624,13 @@ body {
     flex-direction: column;
     overflow: hidden;
     transition: opacity 0.2s, transform 0.2s;
+}
+@media (max-width: 576px) {
+    .terminal-drawer {
+        bottom: 85px;
+        left: 20px;
+        max-width: calc(100vw - 40px);
+    }
 }
 .terminal-drawer.d-none {
     display: none !important;
